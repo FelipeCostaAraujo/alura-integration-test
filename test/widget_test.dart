@@ -13,13 +13,15 @@ void main() {
       expect(find.text('Menu'), findsOneWidget);
     });
 
-    testWidgets('Hamburguer Menu should have "Gerenciar clientes"', (tester) async {
+    testWidgets('Hamburguer Menu should have "Gerenciar clientes"',
+        (tester) async {
       await tester.pumpWidget(const MaterialApp(
         home: HamburgerMenu(),
       ));
       expect(find.text('Gerenciar clientes'), findsOneWidget);
     });
-    testWidgets('Hamburguer Menu should have "Tipos de clientes"', (tester) async {
+    testWidgets('Hamburguer Menu should have "Tipos de clientes"',
+        (tester) async {
       await tester.pumpWidget(const MaterialApp(
         home: HamburgerMenu(),
       ));

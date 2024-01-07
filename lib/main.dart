@@ -9,14 +9,14 @@ import 'pages/clients_page.dart';
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => Clients(clients: [])),
-    ChangeNotifierProvider(create: (context) => Types(types: [
-      ClientType(name: 'Platinum', icon: Icons.credit_card),
-      ClientType(name: 'Golden', icon: Icons.card_membership),
-      ClientType(name: 'Titanium', icon: Icons.credit_score),
-      ClientType(name: 'Diamond', icon: Icons.diamond),
-    ]))
-  ],
-  child: const MyApp()));
+    ChangeNotifierProvider(
+        create: (context) => Types(types: [
+              ClientType(name: 'Platinum', icon: Icons.credit_card),
+              ClientType(name: 'Golden', icon: Icons.card_membership),
+              ClientType(name: 'Titanium', icon: Icons.credit_score),
+              ClientType(name: 'Diamond', icon: Icons.diamond),
+            ]))
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
