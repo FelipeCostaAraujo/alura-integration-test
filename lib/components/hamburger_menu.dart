@@ -14,11 +14,14 @@ class HamburgerMenu extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.indigo,
             ),
-            child: Text('Menu',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20)),
+            child: Text(
+              'Menu',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            ),
           ),
           ListTile(
             title: const Text('Gerenciar clientes'),

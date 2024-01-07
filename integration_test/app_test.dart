@@ -44,8 +44,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Cadastrar tipo'), findsOneWidget);
     var name = faker.lorem.word();
-    await tester.enterText(find.bySemanticsLabel('Nome'), name);
-    await tester.tap(find.text('Selecionar ícone'));
+    await tester.enterText(find.byType(TextFormField), name);
+    await tester.pump();
+    await tester.tap(find.text('Selecionar icone'));
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.ac_unit));
     await tester.tap(find.text('Salvar'));
