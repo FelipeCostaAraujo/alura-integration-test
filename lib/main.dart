@@ -6,8 +6,7 @@ import 'models/client_type.dart';
 import 'models/types.dart';
 import 'pages/clients_page.dart';
 
-void main(List<String> args, Key providerKey) {
-  print(args);
+void main({List<String>? args, Key? providerKey}) {
   runApp(
     MultiProvider(
       providers: [

@@ -26,7 +26,7 @@ void main() {
     });
 
     testWidgets('Testing the Clients Page', (tester) async {
-      app.main([], GlobalKey());
+      app.main(args: [], providerKey: GlobalKey());
       await tester.pumpAndSettle();
       expect(find.text('Clientes'), findsOneWidget);
       expect(find.byIcon(Icons.add), findsOneWidget);
@@ -37,7 +37,7 @@ void main() {
   group('Navigation', () {
     testWidgets('Testing navigation of menu "Gerenciar Clientes"',
         (tester) async {
-          app.main([], GlobalKey());
+      app.main(args: [], providerKey: GlobalKey());
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.menu));
       await tester.pumpAndSettle();
@@ -50,7 +50,7 @@ void main() {
 
     testWidgets('Testing navigation of menu "Tipos de Clientes"',
         (tester) async {
-          app.main([], GlobalKey());
+      app.main(args: [], providerKey: GlobalKey());
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.menu));
       await tester.pumpAndSettle();
@@ -64,7 +64,7 @@ void main() {
 
   group('Actions', () {
     testWidgets('Testing open menu', (tester) async {
-      app.main([], GlobalKey());
+      app.main(args: [], providerKey: GlobalKey());
       await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.menu));
       await tester.pumpAndSettle();
@@ -76,7 +76,7 @@ void main() {
   });
 
   testWidgets('Testing create client type', (tester) async {
-    app.main([], GlobalKey());
+    app.main(args: [], providerKey: GlobalKey());
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
@@ -97,7 +97,7 @@ void main() {
   });
 
   testWidgets('Testing create new client', (tester) async {
-    app.main([], GlobalKey());
+    app.main(args: [], providerKey: GlobalKey());
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
@@ -111,7 +111,7 @@ void main() {
 
   testWidgets('Testing Client feature', (tester) async {
     final providerKey = GlobalKey();
-    app.main([], providerKey);
+    app.main(args: [], providerKey: providerKey);
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
@@ -133,7 +133,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(clientType), findsOneWidget);
-    expect(Provider.of<Types>(providerKey.currentContext!, listen: false).types.last.name, clientType);
+    expect(
+        Provider.of<Types>(providerKey.currentContext!, listen: false)
+            .types
+            .last
+            .name,
+        clientType);
 
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.menu));
@@ -155,7 +160,12 @@ void main() {
     await tester.tap(find.text('Salvar'));
     await tester.pumpAndSettle();
 
-    expect(Provider.of<Clients>(providerKey.currentContext!, listen: false).clients.last.name, name);
+    expect(
+        Provider.of<Clients>(providerKey.currentContext!, listen: false)
+            .clients
+            .last
+            .name,
+        name);
 
     expect(find.text(name + ' ($clientType)'), findsOneWidget);
 
