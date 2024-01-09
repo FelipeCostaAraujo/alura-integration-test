@@ -32,6 +32,15 @@ class _ClientsPageState extends State<ClientsPage> {
                 key: UniqueKey(),
                 background: Container(color: Colors.red),
                 child: ListTile(
+                  onTap: (){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(list.clients[index].email),
+                        duration: const Duration(seconds: 1),
+                        showCloseIcon: true,
+                      ),
+                    );
+                  },
                   leading: Icon(list.clients[index].type.icon),
                   title: Text(list.clients[index].name +
                       ' (' +
