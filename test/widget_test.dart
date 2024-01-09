@@ -78,6 +78,28 @@ void main() {
       await loadPage(tester);
       expect(find.byIcon(Icons.menu), findsOneWidget);
     });
+
+    testWidgets('Should show snack after tap into client', (tester)  async {
+      await loadPage(tester);
+      await tester.tap(find.byIcon(Icons.add));
+      await tester.pumpAndSettle();
+      expect(find.text('Cadastrar cliente'), findsOneWidget);
+      await tester.enterText(find.bySemanticsLabel('Nome'), 'Novo Cliente');
+      await tester.pump();
+      await tester.enterText(find.bySemanticsLabel('Email'), 'novo@cliente.com');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_downward));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Golden'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Salvar'));
+      await tester.pumpAndSettle();
+      expect(find.text('Novo Cliente (Golden)'), findsOneWidget);
+      await tester.tap(find.text('Novo Cliente (Golden)'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ScaffoldMessenger), findsOneWidget);
+      expect(find.text('novo@cliente.com'), findsOneWidget);
+    });
   });
 
   group('Clients type page', () {
