@@ -1,0 +1,19 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.0'
+      - run: flutter pub get
+      - run: flutter test integration_test
+
