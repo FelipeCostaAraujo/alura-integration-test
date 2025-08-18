@@ -1,0 +1,68 @@
+name: Flutter Unit Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+  workflow_dispatch:
+
+# (Opcional) evita rodar múltiplos jobs concorrentes no mesmo PR/branch
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    # Se você adicionou um label ao runner (ex: gha-ci), use:
+    # runs-on: [self-hosted, gha-ci]
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Pré-requisitos (útil em runner self-hosted)
+      - name: Install prerequisites
+        run: |
+          if command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y git unzip xz-utils zip curl
+          else
+            echo "Sem sudo neste runner — garanta git/unzip/xz-utils/zip/curl já instalados na VM."
+          fi
+
+      # Instala o Flutter (com cache) na run
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Se quiser fixar versão: flutter-version: "3.22.x"
+          cache: true
+
+      - name: Flutter doctor (quick check)
+        run: flutter doctor -v
+
+      # Cache de dependências do Dart/Flutter
+      - name: Restore pub cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ${{ github.workspace }}/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      - name: Pub get
+        run: flutter pub get
+
+      # ✅ Testes unitários (não precisa de Android SDK/emulador)
+      - name: Run unit tests
+        run: flutter test --coverage
+
+      # (Opcional) publica o lcov como artefato
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: ignore
