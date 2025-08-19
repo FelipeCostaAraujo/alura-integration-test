@@ -15,33 +15,25 @@ concurrency:
 jobs:
   android:
     name: Android (integration_test)
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 45
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Java 17 é o padrão atual do toolchain Android (Gradle/AGP)
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      # Instala Flutter (stable) e habilita cache
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Flutter doctor
-        run: flutter doctor -v
+      - run: flutter doctor -v
 
-      # Cache das dependências do Dart/Flutter
-      - name: Cache pub
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.pub-cache
@@ -49,46 +41,38 @@ jobs:
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      - name: Pub get
-        run: flutter pub get
+      - run: flutter pub get
 
-      # Sobe um emulador Android headless e roda os testes de integração
-      - name: Run integration tests on Android emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: google_apis
-          arch: x86_64
-          profile: pixel_5
-          avd-name: ci-android
-          # Headless + software renderer (sem aceleração) para CI
-          emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -camera-back none -camera-front none -noaudio -no-boot-anim -accel off"
-          disable-animations: true
-          script: |
-            adb devices
-            flutter devices
-            # Executa os testes da pasta integration_test no emulador
-            flutter test integration_test -d emulator-5554 --coverage
+      - name: Sanity check emulator
+        run: |
+          adb start-server || true
+          for i in {1..120}; do
+            BOOTED=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            [ "$BOOTED" = "1" ] && break
+            sleep 2
+          done
+          adb -s emulator-5554 shell settings put global window_animation_scale 0
+          adb -s emulator-5554 shell settings put global transition_animation_scale 0
+          adb -s emulator-5554 shell settings put global animator_duration_scale 0
+          adb devices
+          flutter devices
 
-      # Cobertura (artefato opcional)
-      - name: Upload coverage (optional)
+      - name: Run integration tests
+        run: flutter test integration_test -d emulator-5554 --coverage
+
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
           name: coverage-lcov
           path: coverage/lcov.info
           if-no-files-found: ignore
 
-      # Logs do Android em caso de falha (útil p/ debugar)
-      - name: Save logcat (on failure)
+      - name: Save logcat
         if: failure()
-        run: |
-          adb logcat -d > android-logcat.txt || true
+        run: adb -s emulator-5554 logcat -d > android-logcat.txt || true
 
-      - name: Upload logs (on failure)
+      - uses: actions/upload-artifact@v4
         if: failure()
-        uses: actions/upload-artifact@v4
         with:
           name: android-logcat
           path: android-logcat.txt
-          if-no-files-found: ignore
