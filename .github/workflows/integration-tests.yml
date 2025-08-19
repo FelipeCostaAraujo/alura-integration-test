@@ -53,25 +53,30 @@ jobs:
 
       - name: Ensure emulator ready
         run: |
-          set -e
           adb kill-server || true
-          adb start-server
-          if ! adb devices | grep -q "emulator-5554"; then
-            nohup emulator -avd ci-android -port 5554 -no-window -gpu host -noaudio -no-boot-anim -accel on -camera-back none -camera-front none -memory 3072 >/tmp/emu.log 2>&1 &
+          adb start-server || true
+          if ! adb devices | awk 'NR>1 {print $1}' | grep -qx "emulator-5554"; then
+            if ! pgrep -f "emulator.*-avd ci-android.*-port 5554" >/dev/null; then
+              nohup emulator -avd ci-android -port 5554 -no-window -gpu host -noaudio -no-boot-anim -accel on -camera-back none -camera-front none -memory 3072 >/tmp/emu.log 2>&1 &
+            fi
           fi
-          for i in {1..180}; do
-            state=$(adb -s emulator-5554 get-state 2>/dev/null || true)
+          for i in $(seq 1 180); do
+            state=$(adb -s emulator-5554 get-state 2>/dev/null || echo offline)
             [ "$state" = "device" ] && break
             sleep 2
           done
-          for i in {1..180}; do
+          state=$(adb -s emulator-5554 get-state 2>/dev/null || echo offline)
+          [ "$state" = "device" ] || { echo "Emulador não detectado"; tail -50 /tmp/emu.log || true; exit 1; }
+          for i in $(seq 1 180); do
             booted=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
             [ "$booted" = "1" ] && break
             sleep 2
           done
-          adb -s emulator-5554 shell settings put global window_animation_scale 0
-          adb -s emulator-5554 shell settings put global transition_animation_scale 0
-          adb -s emulator-5554 shell settings put global animator_duration_scale 0
+          booted=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+          [ "$booted" = "1" ] || { echo "Boot não completou"; exit 1; }
+          adb -s emulator-5554 shell settings put global window_animation_scale 0 || true
+          adb -s emulator-5554 shell settings put global transition_animation_scale 0 || true
+          adb -s emulator-5554 shell settings put global animator_duration_scale 0 || true
           adb devices
           flutter devices
 
