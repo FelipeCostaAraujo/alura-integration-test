@@ -51,12 +51,22 @@ jobs:
 
       - run: flutter pub get
 
-      - name: Sanity check emulator
+      - name: Ensure emulator ready
         run: |
-          adb start-server || true
-          for i in {1..120}; do
-            BOOTED=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-            [ "$BOOTED" = "1" ] && break
+          set -e
+          adb kill-server || true
+          adb start-server
+          if ! adb devices | grep -q "emulator-5554"; then
+            nohup emulator -avd ci-android -port 5554 -no-window -gpu host -noaudio -no-boot-anim -accel on -camera-back none -camera-front none -memory 3072 >/tmp/emu.log 2>&1 &
+          fi
+          for i in {1..180}; do
+            state=$(adb -s emulator-5554 get-state 2>/dev/null || true)
+            [ "$state" = "device" ] && break
+            sleep 2
+          done
+          for i in {1..180}; do
+            booted=$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            [ "$booted" = "1" ] && break
             sleep 2
           done
           adb -s emulator-5554 shell settings put global window_animation_scale 0
