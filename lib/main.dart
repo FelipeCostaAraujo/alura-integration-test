@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
       title: 'Controle de clientes',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        useMaterial3: false,
         primarySwatch: Colors.indigo,
       ),
       initialRoute: '/',

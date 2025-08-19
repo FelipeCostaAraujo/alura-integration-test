@@ -31,8 +31,31 @@ class _ClientsPageState extends State<ClientsPage> {
               return Dismissible(
                 key: UniqueKey(),
                 background: Container(color: Colors.red),
+                confirmDismiss: (direction) async {
+                  return await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Confirmar"),
+                        content: const Text(
+                          "Você realmente deseja excluir este cliente?",
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text("Cancelar"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text("Excluir"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
                 child: ListTile(
-                  onTap: (){
+                  onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(list.clients[index].email),

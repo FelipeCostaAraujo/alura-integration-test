@@ -174,6 +174,8 @@ void main() {
     expect(clientTileFinder, findsOneWidget);
     await tester.drag(clientTileFinder, const Offset(500.0, 0.0));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Excluir'));
+    await tester.pumpAndSettle();
 
     expect(find.text(name + ' ($clientType)'), findsNothing);
   });
