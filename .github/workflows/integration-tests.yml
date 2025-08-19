@@ -14,18 +14,20 @@ concurrency:
 
 jobs:
   android:
-    runs-on: [self-hosted, gha-ci]
+    name: Android (integration_test)
+    runs-on: self-hosted
     timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Android SDK env
+      - name: Add Android SDK to PATH
         run: |
-          echo "ANDROID_SDK_ROOT=/opt/android-sdk" >> $GITHUB_ENV
-          echo "/opt/android-sdk/platform-tools" >> $GITHUB_PATH
-          echo "/opt/android-sdk/emulator" >> $GITHUB_PATH
-          echo "/opt/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "/opt/android-sdk/platform-tools" >> "$GITHUB_PATH"
+          echo "/opt/android-sdk/emulator" >> "$GITHUB_PATH"
+          echo "/opt/android-sdk/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "ANDROID_SDK_ROOT=/opt/android-sdk" >> "$GITHUB_ENV"
+          echo "ANDROID_HOME=/opt/android-sdk" >> "$GITHUB_ENV"
 
       - uses: actions/setup-java@v4
         with:
@@ -49,7 +51,7 @@ jobs:
 
       - run: flutter pub get
 
-      - name: Sanity check (emulator)
+      - name: Sanity check emulator
         run: |
           adb start-server || true
           for i in {1..120}; do
